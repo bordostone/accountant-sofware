@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ön Muhasebe Pro — Fatura, Kasa, Banka, Çek & Cari Yönetimi</title>
+    <!-- Tailwind CSS (Offline Bundle) -->
+    <script src="/static/js/tailwind.min.js"></script>
+    <!-- Lucide Icons (Offline Bundle) -->
+    <script src="/static/js/lucide.min.js"></script>
+    <!-- Custom CSS & Print Styles -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased flex h-screen overflow-hidden">
+
+    <!-- SOL KENAR ÇUBUĞU (SIDEBAR) -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0 z-20 shadow-xl">
+        <div>
+            <!-- Logo & Başlık -->
+            <div class="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/30">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-tight leading-tight text-white">Ön Muhasebe <span class="text-blue-400 text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-500/20">PRO</span></h1>
+                    <p class="text-[11px] text-slate-400 font-medium truncate max-w-[140px]" id="sidebar-firma-adi">Özerler Mermer</p>
+                </div>
+            </div>
+
+            <!-- Menü Öğeleri -->
+            <nav class="p-3 space-y-1">
+                <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-white bg-blue-600 shadow-sm shadow-blue-600/30">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Genel Bakış</span>
+                </a>
+                <a href="#cariler" onclick="switchTab('cariler')" id="nav-cariler" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                    <span>Cari Hesaplar</span>
+                    <span id="badge-cari-count" class="ml-auto text-[11px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
+                </a>
+                <a href="#faturalar" onclick="switchTab('faturalar')" id="nav-faturalar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>Faturalar</span>
+                    <span id="badge-fatura-count" class="ml-auto text-[11px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
+                </a>
+                <a href="#kasa-banka" onclick="switchTab('kasa-banka')" id="nav-kasa-banka" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="landmark" class="w-4 h-4"></i>
+                    <span>Kasa & Banka</span>
+                </a>
+                <a href="#cekler" onclick="switchTab('cekler')" id="nav-cekler" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="wallet-cards" class="w-4 h-4"></i>
+                    <span>Çek Takibi</span>
+                    <span id="badge-cek-alarm" class="ml-auto text-[10px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded font-bold hidden">0</span>
+                </a>
+                <a href="#stoklar" onclick="switchTab('stoklar')" id="nav-stoklar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="package" class="w-4 h-4"></i>
+                    <span>Stok & Hizmet</span>
+                </a>
+                <a href="#raporlar" onclick="switchTab('raporlar')" id="nav-raporlar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                    <span>Mali Raporlar</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Alt Ayarlar & Versiyon -->
+        <div class="p-3 border-t border-slate-800 space-y-1">
+            <a href="#ayarlar" onclick="switchTab('ayarlar')" id="nav-ayarlar" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                <span>Firma & Ayarlar</span>
+            </a>
+            <button onclick="uygulamayiKapat()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-400 hover:text-white hover:bg-red-900/30 transition text-left cursor-pointer">
+                <i data-lucide="power" class="w-4 h-4"></i>
+                <span>Programı Kapat</span>
+            </button>
+            <div class="px-3 pt-2 text-[11px] text-slate-400 flex items-center justify-between">
+                <span>v1.0.0 Standalone</span>
+                <span class="flex items-center gap-1 text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Çevrimdışı Aktif</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ANA İÇERİK ALANI -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Üst Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <span id="page-title" class="text-lg font-bold text-slate-800">Genel Bakış</span>
+                <span class="text-xs text-slate-400 hidden md:inline">|</span>
+                <span id="header-date" class="text-xs text-slate-500 font-medium hidden md:inline"></span>
+            </div>
+
+            <!-- Hızlı Eylem Butonları -->
+            <div class="flex items-center gap-2">
+                <button onclick="openFaturaModal('SATIS')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                    <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                    <span>Satış Faturası Kes</span>
+                </button>
+                <button onclick="openIslemModal('KASA_TAHSILAT')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                    <i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i>
+                    <span>Nakit Tahsilat</span>
+                </button>
+                <button onclick="openIslemModal('KREDI_KARTI_TAHSILAT')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                    <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                    <span>Kredi Kartı Tahsilat</span>
+                </button>
+                <button onclick="openCekModal('ALINAN')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                    <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                    <span>Çek Girişi</span>
+                </button>
+                <button onclick="openCariHareketModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                    <span>Dekont / Devir Gir</span>
+                </button>
+                <button onclick="uygulamayiKapat()" title="Programı Güvenle Kapat" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 text-xs font-semibold rounded-lg border border-slate-200 hover:border-red-200 transition ml-2 cursor-pointer">
+                    <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Çıkış</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sekmeler İçerik Taşıyıcısı -->
+        <main class="flex-1 overflow-y-auto p-6 bg-slate-50" id="main-content">
+
+            <!-- 1. DASHBOARD TAB -->
+            <section id="tab-dashboard" class="tab-content active space-y-6">
+                <!-- 4 Temel Finansal Gösterge Kartı -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Toplam Alacak -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Müşterilerden Alacak</span>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <i data-lucide="arrow-down-right" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div id="stat-alacak" class="text-2xl font-black text-slate-800 tracking-tight">0,00 ₺</div>
+                            <p class="text-[11px] text-slate-400 mt-1">Vadesi geçmiş & açık faturalar</p>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500"></div>
+                    </div>
+
+                    <!-- Toplam Borç -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tedarikçilere Borç</span>
+                            <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div id="stat-borc" class="text-2xl font-black text-slate-800 tracking-tight">0,00 ₺</div>
+                            <p class="text-[11px] text-slate-400 mt-1">Ödenecek alış faturaları</p>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-500"></div>
+                    </div>
+
+                    <!-- Nakit & Banka Varlığı -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Kasa & Banka Toplamı</span>
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <i data-lucide="wallet" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div id="stat-nakit" class="text-2xl font-black text-slate-800 tracking-tight">0,00 ₺</div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-1">
+                                <span>Kasa: <strong id="stat-kasa" class="text-slate-700">0 ₺</strong></span>
+                                <span>Banka: <strong id="stat-banka" class="text-slate-700">0 ₺</strong></span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-500"></div>
+                    </div>
+
+                    <!-- Portföydeki Çekler -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Portföydeki Çekler</span>
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                                <i data-lucide="wallet-cards" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div id="stat-cek" class="text-2xl font-black text-slate-800 tracking-tight">0,00 ₺</div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-1">
+                                <span>Alınan: <strong id="stat-alinan-cek">0 Adet</strong></span>
+                                <span>Verilen: <strong id="stat-verilen-cek">0 Adet</strong></span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500"></div>
+                    </div>
+                </div>
+
+                <!-- Çek Vade Uyarı Kutuları (Varsa Gösterilir) -->
+                <div id="dashboard-cek-alarmlari" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                    <div id="box-geciken-cek" class="bg-red-50 border border-red-200 text-red-900 p-4 rounded-xl flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-red-800">DİKKAT: Vadesi Geçmiş Tahsil Edilmemiş Çek Var!</h4>
+                            <p class="text-xs text-red-700 mt-0.5" id="msg-geciken-cek">1 adet çekin vadesi geçmiştir.</p>
+                            <button onclick="switchTab('cekler', 'GECIKTI')" class="mt-2 text-xs font-bold text-red-700 underline hover:text-red-900">Çekleri İncele &rarr;</button>
+                        </div>
+                    </div>
+                    <div id="box-yaklasan-cek" class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-amber-800">Bu Hafta Vadesi Gelen Çekler</h4>
+                            <p class="text-xs text-amber-700 mt-0.5" id="msg-yaklasan-cek">1 adet çekin tahsilat vadesi yaklaştı.</p>
+                            <button onclick="switchTab('cekler', 'YAKLASTI')" class="mt-2 text-xs font-bold text-amber-700 underline hover:text-amber-900">Listeyi Gör &rarr;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İki Sütunlu Hızlı Tablo Alanı: Son Faturalar & Son Hareketler -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Son Kesilen Faturalar -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                                Son Düzenlenen Faturalar
+                            </h3>
+                            <button onclick="switchTab('faturalar')" class="text-xs text-blue-600 font-semibold hover:underline">Tümünü Gör</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2 px-3">Fatura No</th>
+                                        <th class="py-2 px-3">Cari</th>
+                                        <th class="py-2 px-3">Tutar</th>
+                                        <th class="py-2 px-3">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-son-faturalar">
+                                    <tr><td colspan="4" class="text-center py-4 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Son Kasa / Banka Hareketleri -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                                <i data-lucide="history" class="w-4 h-4 text-emerald-600"></i>
+                                Son Kasa & Banka Hareketleri
+                            </h3>
+                            <button onclick="switchTab('kasa-banka')" class="text-xs text-blue-600 font-semibold hover:underline">Tümünü Gör</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2 px-3">Tarih</th>
+                                        <th class="py-2 px-3">İşlem</th>
+                                        <th class="py-2 px-3">Hesap / Cari</th>
+                                        <th class="py-2 px-3 text-right">Tutar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-son-hareketler">
+                                    <tr><td colspan="4" class="text-center py-4 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. CARİLER TAB -->
+            <section id="tab-cariler" class="tab-content space-y-4">
+                <!-- Üst Filtre ve Eylem Barı -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-2 flex-1">
+                        <div class="relative flex-1 min-w-[200px] md:max-w-xs">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="cari-search" oninput="loadCariler()" placeholder="Cari unvan, vergi no, telefon..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <select id="cari-filter-tip" onchange="loadCariler()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                            <option value="HEPSI">Tüm Cariler</option>
+                            <option value="MUSTERI">Sadece Müşteriler</option>
+                            <option value="TEDARIKCI">Sadece Tedarikçiler</option>
+                            <option value="PERSONEL">Sadece Personeller</option>
+                        </select>
+                        <!-- Bakiyeye Göre Filtreleme -->
+                        <select id="cari-filter-bakiye" onchange="loadCariler()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700">
+                            <option value="HEPSI">Tüm Bakiyeler</option>
+                            <option value="BORCLU">Borçlu Cariler (Alacağımız Olanlar)</option>
+                            <option value="ALACAKLI">Alacaklı Cariler (Borcumuz Olanlar)</option>
+                            <option value="BAKIYELI">Bakiyesi Olanlar (Açık Hesaplar)</option>
+                            <option value="SIFIR">Bakiyesi Sıfır (Kapalı Hesaplar)</option>
+                        </select>
+                        <!-- Sıralama Seçenekleri -->
+                        <select id="cari-filter-sort" onchange="loadCariler()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700">
+                            <option value="unvan_asc">Sırala: Ünvan (A ➔ Z)</option>
+                            <option value="bakiye_desc">Sırala: Bakiye (En Çok Borçlu Önce)</option>
+                            <option value="bakiye_asc">Sırala: Bakiye (En Çok Alacaklı Önce)</option>
+                            <option value="borc_desc">Sırala: Toplam Borç Hacmi</option>
+                            <option value="alacak_desc">Sırala: Toplam Alacak Hacmi</option>
+                            <option value="kod_asc">Sırala: Cari Kodu</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="openNewCariModal()" class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>Yeni Cari Kart Ekle</span>
+                        </button>
+                        <button onclick="openCariHareketModal()" class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="receipt" class="w-4 h-4"></i>
+                            <span>Dekont & Devir Girişi</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cariler Tablosu -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse data-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Cari Kodu</th>
+                                    <th class="py-3 px-4">Cari Unvanı / Firma</th>
+                                    <th class="py-3 px-4">Tip</th>
+                                    <th class="py-3 px-4">Yetkili / Telefon</th>
+                                    <th class="py-3 px-4 text-right">Borç</th>
+                                    <th class="py-3 px-4 text-right">Alacak</th>
+                                    <th onclick="toggleCariBakiyeSort()" class="py-3 px-4 text-right cursor-pointer hover:bg-slate-100 select-none group" title="Bakiyeye göre sıralamak için tıklayın">
+                                        <div class="inline-flex items-center gap-1 text-slate-800 font-bold group-hover:text-blue-600">
+                                            <span>Net Bakiye</span>
+                                            <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 text-center">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cariler-table-body">
+                                <tr><td colspan="8" class="text-center py-8 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. FATURALAR TAB -->
+            <section id="tab-faturalar" class="tab-content space-y-4">
+                <!-- Filtreler ve Buton -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 w-full md:w-auto flex-wrap">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="fatura-search" oninput="loadFaturalar()" placeholder="Fatura no, cari unvan..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <select id="fatura-filter-turu" onchange="loadFaturalar()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tüm Faturalar</option>
+                            <option value="SATIS">Satış Faturaları</option>
+                            <option value="ALIS">Alış Faturaları</option>
+                        </select>
+                        <select id="fatura-filter-durum" onchange="loadFaturalar()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tüm Durumlar</option>
+                            <option value="BEKLIYOR">Ödenmemiş / Açık</option>
+                            <option value="KISMI">Kısmi Ödenmiş</option>
+                            <option value="ODENDI">Tamamı Ödenmiş</option>
+                            <option value="IPTAL">İptal Edilmiş</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <button onclick="openFaturaModal('SATIS')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Yeni Satış Faturası</span>
+                        </button>
+                        <button onclick="openFaturaModal('ALIS')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            <span>Yeni Alış Faturası</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Faturalar Tablosu -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse data-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Fatura No</th>
+                                    <th class="py-3 px-4">Tür</th>
+                                    <th class="py-3 px-4">Tarih / Vade</th>
+                                    <th class="py-3 px-4">Cari</th>
+                                    <th class="py-3 px-4 text-right">Ara Toplam</th>
+                                    <th class="py-3 px-4 text-right">KDV</th>
+                                    <th class="py-3 px-4 text-right">Genel Toplam</th>
+                                    <th class="py-3 px-4 text-right">Kalan</th>
+                                    <th class="py-3 px-4 text-center">Durum</th>
+                                    <th class="py-3 px-4 text-center">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="faturalar-table-body">
+                                <tr><td colspan="10" class="text-center py-8 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. KASA & BANKA TAB -->
+            <section id="tab-kasa-banka" class="tab-content space-y-6">
+                <!-- Hesap Kartları (Kasa ve Bankalar) -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-sm text-slate-800">Kasa & Banka Hesapları</h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openNewKasaModal()" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Yeni Kasa Ekle
+                            </button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="openNewBankaModal()" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Yeni Banka Hesabı Ekle
+                            </button>
+                        </div>
+                    </div>
+                    <div id="hesap-kartlari-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- JS dolduracak -->
+                    </div>
+                </div>
+
+                <!-- Hareketler Başlığı ve Eylem Butonları -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-bold text-sm text-slate-800">Nakit / Havale / EFT Hareketleri</h4>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openIslemModal('KASA_TAHSILAT')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i> Nakit Tahsilat
+                        </button>
+                        <button onclick="openIslemModal('KREDI_KARTI_TAHSILAT')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Kredi Kartı ile Tahsilat
+                        </button>
+                        <button onclick="openIslemModal('KASA_ODEME')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Nakit Ödeme
+                        </button>
+                        <button onclick="openIslemModal('BANKA_GELEN_HAVALE')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Gelen Havale/EFT
+                        </button>
+                        <button onclick="openIslemModal('BANKA_GIDEN_HAVALE')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i> Giden Havale/EFT
+                        </button>
+                        <button onclick="openIslemModal('KASA_BANKA_VIRMAN')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Virman / Transfer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hareketler Tablosu -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse data-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Tarih</th>
+                                    <th class="py-3 px-4">İşlem Türü</th>
+                                    <th class="py-3 px-4">Hesap</th>
+                                    <th class="py-3 px-4">İlgili Cari / Fatura</th>
+                                    <th class="py-3 px-4">Evrak No / Açıklama</th>
+                                    <th class="py-3 px-4 text-right">Tutar</th>
+                                    <th class="py-3 px-4 text-center">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kasa-hareketleri-table-body">
+                                <tr><td colspan="7" class="text-center py-8 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. ÇEK TAKİBİ TAB -->
+            <section id="tab-cekler" class="tab-content space-y-4">
+                <!-- Üst Filtre ve Buton -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 w-full md:w-auto flex-wrap">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="cek-search" oninput="loadCekler()" placeholder="Çek no, keşideci, banka..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <select id="cek-filter-turu" onchange="loadCekler()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tüm Çekler (Alınan & Verilen)</option>
+                            <option value="ALINAN">Müşteriden Alınan Çekler</option>
+                            <option value="VERILEN">Tedarikçiye Verilen Çekler</option>
+                        </select>
+                        <select id="cek-filter-durum" onchange="loadCekler()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="HEPSI">Tüm Durumlar</option>
+                            <option value="PORTFOYDE">Portföyde (Bekliyor)</option>
+                            <option value="BANKAYA_VERILDI">Bankada (Tahsile Verildi)</option>
+                            <option value="TAHSIL_EDILDI">Tahsil Edilenler</option>
+                            <option value="CIROLANMIS">Cirolananlar</option>
+                            <option value="KARSILIKSIZ">Karşılıksız Çıkanlar</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <button onclick="openCekModal('ALINAN')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Yeni Alınan Çek Girişi</span>
+                        </button>
+                        <button onclick="openCekModal('VERILEN')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="minus-circle" class="w-4 h-4"></i>
+                            <span>Verilen Firma Çeki</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Çekler Tablosu -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse data-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Çek No</th>
+                                    <th class="py-3 px-4">Tür</th>
+                                    <th class="py-3 px-4">Vade Tarihi</th>
+                                    <th class="py-3 px-4">Vade Durumu</th>
+                                    <th class="py-3 px-4">Banka / Şube</th>
+                                    <th class="py-3 px-4">Keşideci / Cari</th>
+                                    <th class="py-3 px-4 text-right">Tutar</th>
+                                    <th class="py-3 px-4 text-center">Durum</th>
+                                    <th class="py-3 px-4 text-center">İşlem Yap</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cekler-table-body">
+                                <tr><td colspan="9" class="text-center py-8 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. STOK & HİZMET TAB -->
+            <section id="tab-stoklar" class="tab-content space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="stok-search" oninput="loadStoklar()" placeholder="Stok kodu veya ürün adı..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <select id="stok-filter-tip" onchange="loadStoklar()" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tümü (Ürün & Hizmet)</option>
+                            <option value="URUN">Sadece Ürünler</option>
+                            <option value="HIZMET">Sadece Hizmetler</option>
+                        </select>
+                    </div>
+
+                    <button onclick="openModal('modal-stok-ekle')" class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Yeni Ürün / Hizmet Kartı Ekle</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse data-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Stok Kodu</th>
+                                    <th class="py-3 px-4">Ürün / Hizmet Tanımı</th>
+                                    <th class="py-3 px-4">Tip / Birim</th>
+                                    <th class="py-3 px-4 text-right">Alış Fiyatı</th>
+                                    <th class="py-3 px-4 text-right">Satış Fiyatı</th>
+                                    <th class="py-3 px-4 text-center">KDV %</th>
+                                    <th class="py-3 px-4 text-right">Mevcut Stok</th>
+                                    <th class="py-3 px-4 text-center">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stoklar-table-body">
+                                <tr><td colspan="8" class="text-center py-8 text-slate-400 text-xs">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. MALİ RAPORLAR & ANALİZ TAB -->
+            <section id="tab-raporlar" class="tab-content space-y-6">
+                <!-- Üst Kontrol & Tarih Filtre Çubuğu -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-600"></i>
+                                Raporlar & Mali Analiz
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Belirlediğiniz tarih aralıklarında kesilen faturaları, yapılan tahsilat ve ödemeleri, kasa/banka hesap hareketlerini izleyin.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="fetchActiveRapor()" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                <span>Raporu Güncelle</span>
+                            </button>
+                            <button onclick="openRaporPrintModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                                <span>Yazdır / PDF Rapor</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tarih Aralığı Seçim Araç Çubuğu -->
+                    <div class="pt-3 border-t border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                        <!-- Hızlı Seçim Butonları (Chips) -->
+                        <div class="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0" id="rapor-quick-chips">
+                            <button type="button" onclick="setRaporDateRange('today')" data-range="today" class="rapor-chip px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition">Bugün</button>
+                            <button type="button" onclick="setRaporDateRange('this_week')" data-range="this_week" class="rapor-chip px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition">Bu Hafta</button>
+                            <button type="button" onclick="setRaporDateRange('this_month')" data-range="this_month" class="rapor-chip px-3 py-1.5 text-xs font-bold rounded-lg border border-blue-600 bg-blue-50 text-blue-700 transition">Bu Ay</button>
+                            <button type="button" onclick="setRaporDateRange('this_year')" data-range="this_year" class="rapor-chip px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition">Bu Yıl</button>
+                            <button type="button" onclick="setRaporDateRange('all')" data-range="all" class="rapor-chip px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition">Tüm Zamanlar</button>
+                        </div>
+
+                        <!-- Tarih Giriş Kutuları -->
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs font-medium text-slate-500">Başlangıç:</span>
+                                <input type="date" id="rapor-baslangic" onchange="onRaporCustomDateChange()" class="text-xs p-1.5 border border-slate-300 rounded-lg font-medium text-slate-800 focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs font-medium text-slate-500">Bitiş:</span>
+                                <input type="date" id="rapor-bitis" onchange="onRaporCustomDateChange()" class="text-xs p-1.5 border border-slate-300 rounded-lg font-medium text-slate-800 focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rapor Alt Sekme Başlıkları -->
+                <div class="flex items-center gap-2 border-b border-slate-200">
+                    <button onclick="switchRaporSubTab('faturalar')" id="btn-subtab-faturalar" class="rapor-subtab-btn px-4 py-2.5 text-xs font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2 transition">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        <span>Faturalar Raporu</span>
+                        <span id="badge-rapor-fatura-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-blue-100 text-blue-800">0</span>
+                    </button>
+                    <button onclick="switchRaporSubTab('tahsilat')" id="btn-subtab-tahsilat" class="rapor-subtab-btn px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Tahsilat & Ödemeler</span>
+                        <span id="badge-rapor-tahsilat-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700">0</span>
+                    </button>
+                    <button onclick="switchRaporSubTab('hesap')" id="btn-subtab-hesap" class="rapor-subtab-btn px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+                        <i data-lucide="landmark" class="w-4 h-4 text-indigo-600"></i>
+                        <span>Hesap Hareketleri (Muavin)</span>
+                    </button>
+                    <button onclick="switchRaporSubTab('kdv')" id="btn-subtab-kdv" class="rapor-subtab-btn px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+                        <i data-lucide="percent" class="w-4 h-4 text-purple-600"></i>
+                        <span>KDV & Vergi Özeti</span>
+                    </button>
+                </div>
+
+                <!-- 1. ALT SEKME: FATURALAR RAPORU -->
+                <div id="rapor-subcontent-faturalar" class="rapor-subcontent space-y-4">
+                    <!-- 4 Temel Fatura KPI Kartı -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Toplam Satış Faturaları</span>
+                                <span class="p-1.5 rounded-lg bg-blue-50 text-blue-600"><i data-lucide="file-plus" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rf-satis-toplam" class="text-xl font-black text-slate-900 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-blue-600 font-medium mt-1 flex items-center justify-between">
+                                <span id="rf-satis-adet">0 Fatura Kesildi</span>
+                                <span id="rf-satis-kdv">0,00 ₺ KDV</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Toplam Alış Faturaları</span>
+                                <span class="p-1.5 rounded-lg bg-slate-100 text-slate-700"><i data-lucide="shopping-bag" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rf-alis-toplam" class="text-xl font-black text-slate-900 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-slate-600 font-medium mt-1 flex items-center justify-between">
+                                <span id="rf-alis-adet">0 Fatura Alındı</span>
+                                <span id="rf-alis-kdv">0,00 ₺ KDV</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Tahsil Edilen / Ödenen</span>
+                                <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600"><i data-lucide="check-circle" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rf-odenen-toplam" class="text-xl font-black text-emerald-600 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-slate-500 font-medium mt-1">Kapanan fatura bedelleri</div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Açık Kalan Fatura Bakiyesi</span>
+                                <span class="p-1.5 rounded-lg bg-amber-50 text-amber-600"><i data-lucide="clock" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rf-kalan-toplam" class="text-xl font-black text-amber-600 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-amber-700 font-medium mt-1">Bekleyen ödeme / tahsilat</div>
+                        </div>
+                    </div>
+
+                    <!-- Fatura Filtre Araç Çubuğu -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                            <select id="rf-filter-tur" onchange="fetchActiveRapor()" class="text-xs p-2 border border-slate-300 rounded-lg font-bold text-slate-700 focus:ring-2 focus:ring-blue-500">
+                                <option value="HEPSI">Tüm Fatura Türleri</option>
+                                <option value="SATIS">Sadece Satış Faturaları</option>
+                                <option value="ALIS">Sadece Alış Faturaları</option>
+                            </select>
+
+                            <select id="rf-filter-durum" onchange="fetchActiveRapor()" class="text-xs p-2 border border-slate-300 rounded-lg font-medium text-slate-700 focus:ring-2 focus:ring-blue-500">
+                                <option value="HEPSI">Tüm Ödeme Durumları</option>
+                                <option value="BEKLIYOR">Açık / Ödenmemiş</option>
+                                <option value="KISMI">Kısmi Ödenmiş</option>
+                                <option value="ODENDI">Tamamı Ödenmiş</option>
+                                <option value="IPTAL">İptal Edilmiş</option>
+                            </select>
+                        </div>
+
+                        <div class="relative w-full md:w-72">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="rf-search" oninput="debounceRaporFilter()" placeholder="Fatura no, cari unvan ara..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Faturalar Tablosu -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4">Tarih</th>
+                                        <th class="py-3 px-4">Fatura No</th>
+                                        <th class="py-3 px-4">Tür</th>
+                                        <th class="py-3 px-4">Cari Bilgisi</th>
+                                        <th class="py-3 px-4 text-right">Ara Toplam</th>
+                                        <th class="py-3 px-4 text-right">KDV</th>
+                                        <th class="py-3 px-4 text-right">Genel Toplam</th>
+                                        <th class="py-3 px-4 text-right">Kalan</th>
+                                        <th class="py-3 px-4 text-center">Durum</th>
+                                        <th class="py-3 px-4 text-center">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rf-table-body" class="divide-y divide-slate-100 text-xs">
+                                    <tr><td colspan="10" class="text-center py-8 text-slate-400">Veriler yükleniyor...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ALT SEKME: TAHSİLAT & ÖDEMELER RAPORU -->
+                <div id="rapor-subcontent-tahsilat" class="rapor-subcontent space-y-4 hidden">
+                    <!-- 3 Temel Nakit Akış KPI Kartı -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Toplam Tahsilatlar (Nakit Girişi)</span>
+                                <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600"><i data-lucide="arrow-down-left" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rt-tahsilat-toplam" class="text-2xl font-black text-emerald-600 mt-2">0,00 ₺</div>
+                            <div id="rt-tahsilat-alt" class="text-xs text-slate-500 mt-1 font-medium">0 işlem kaydedildi</div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Toplam Ödemeler (Nakit Çıkışı)</span>
+                                <span class="p-1.5 rounded-lg bg-red-50 text-red-600"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rt-odeme-toplam" class="text-2xl font-black text-red-600 mt-2">0,00 ₺</div>
+                            <div id="rt-odeme-alt" class="text-xs text-slate-500 mt-1 font-medium">0 işlem kaydedildi</div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span>Net Nakit Akışı (Giriş - Çıkış)</span>
+                                <span class="p-1.5 rounded-lg bg-blue-50 text-blue-600"><i data-lucide="wallet" class="w-4 h-4"></i></span>
+                            </div>
+                            <div id="rt-net-akis" class="text-2xl font-black text-slate-900 mt-2">0,00 ₺</div>
+                            <div id="rt-net-alt" class="text-xs text-slate-500 mt-1 font-medium">Dönemsel nakit dengesi</div>
+                        </div>
+                    </div>
+
+                    <!-- Filtreleme Araç Çubuğu -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <select id="rt-filter-grup" onchange="fetchActiveRapor()" class="text-xs p-2 border border-slate-300 rounded-lg font-bold text-slate-700 focus:ring-2 focus:ring-blue-500">
+                                <option value="HEPSI">Tüm Hareketler (Tahsilat + Ödeme + Virman)</option>
+                                <option value="TAHSILAT">Sadece Tahsilatlar (Nakit Girişleri)</option>
+                                <option value="ODEME">Sadece Ödemeler (Nakit Çıkışları)</option>
+                                <option value="VIRMAN">Virmanlar / Transferler</option>
+                            </select>
+                        </div>
+
+                        <div class="relative w-full md:w-72">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="rt-search" oninput="debounceRaporFilter()" placeholder="Açıklama, cari, hesap ara..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Tahsilat & Ödemeler Tablosu -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4">Tarih</th>
+                                        <th class="py-3 px-4">İşlem Türü</th>
+                                        <th class="py-3 px-4">Hesap (Kasa/Banka)</th>
+                                        <th class="py-3 px-4">Cari / Muhatap</th>
+                                        <th class="py-3 px-4">Evrak No</th>
+                                        <th class="py-3 px-4">Açıklama</th>
+                                        <th class="py-3 px-4 text-right">Tahsilat (Giriş +)</th>
+                                        <th class="py-3 px-4 text-right">Ödeme (Çıkış -)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rt-table-body" class="divide-y divide-slate-100 text-xs">
+                                    <tr><td colspan="8" class="text-center py-8 text-slate-400">Veriler yükleniyor...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ALT SEKME: HESAP HAREKETLERİ (MUAVİN) -->
+                <div id="rapor-subcontent-hesap" class="rapor-subcontent space-y-4 hidden">
+                    <!-- Hesap Seçici & Arama -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <label class="text-xs font-bold text-slate-700 whitespace-nowrap">İncelenecek Hesap:</label>
+                            <select id="rh-filter-hesap" onchange="fetchActiveRapor()" class="text-xs p-2 border border-slate-300 rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 min-w-[240px]">
+                                <option value="TUMU">Tüm Kasa ve Bankalar (Konsolide)</option>
+                            </select>
+                        </div>
+
+                        <div class="relative w-full md:w-72">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="rh-search" oninput="debounceRaporFilter()" placeholder="Hesap dökümünde ara..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- 4 Muavin KPI Kartı -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="text-xs text-slate-500 font-medium">Dönem Başı Devir Bakiyesi</div>
+                            <div id="rh-devir-bakiye" class="text-xl font-black text-slate-700 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-slate-400 mt-1">Başlangıç tarihinden önceki bakiye</div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="text-xs text-slate-500 font-medium">Dönem İçi Girişler (+)</div>
+                            <div id="rh-toplam-giris" class="text-xl font-black text-emerald-600 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-emerald-700 font-medium mt-1">Dönemdeki tahsilatlar</div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="text-xs text-slate-500 font-medium">Dönem İçi Çıkışlar (-)</div>
+                            <div id="rh-toplam-cikis" class="text-xl font-black text-red-600 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-red-700 font-medium mt-1">Dönemdeki harcama ve ödemeler</div>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm">
+                            <div class="text-xs text-blue-700 font-bold">Dönem Sonu Kapanış Bakiyesi</div>
+                            <div id="rh-kapanis-bakiye" class="text-xl font-black text-blue-900 mt-2">0,00 ₺</div>
+                            <div class="text-[11px] text-blue-700 font-medium mt-1">Devir + Giriş - Çıkış</div>
+                        </div>
+                    </div>
+
+                    <!-- Muavin Defteri Tablosu -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4">Tarih</th>
+                                        <th class="py-3 px-4">Hesap</th>
+                                        <th class="py-3 px-4">İşlem Türü</th>
+                                        <th class="py-3 px-4">Cari / Muhatap</th>
+                                        <th class="py-3 px-4">Evrak No</th>
+                                        <th class="py-3 px-4">Açıklama</th>
+                                        <th class="py-3 px-4 text-right">Giriş (+)</th>
+                                        <th class="py-3 px-4 text-right">Çıkış (-)</th>
+                                        <th class="py-3 px-4 text-right font-black">Yürüyen Bakiye</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rh-table-body" class="divide-y divide-slate-100 text-xs">
+                                    <tr><td colspan="9" class="text-center py-8 text-slate-400">Veriler yükleniyor...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ALT SEKME: KDV & VERGİ ÖZETİ -->
+                <div id="rapor-subcontent-kdv" class="rapor-subcontent space-y-6 hidden">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                                <i data-lucide="percent" class="w-5 h-5 text-indigo-600"></i>
+                                Seçili Tarih Aralığı KDV Durumu
+                            </h3>
+                            <span id="kdv-tarih-etiket" class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-600"></span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                                <span class="text-xs font-semibold uppercase text-blue-700">Satışlardan Hesaplanan KDV (391)</span>
+                                <div id="kdv-hesaplanan" class="text-2xl font-black text-blue-900 mt-2">0,00 ₺</div>
+                                <p class="text-xs text-blue-600 mt-1" id="kdv-satis-matrah">Matrah: 0,00 ₺</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-purple-50 border border-purple-100">
+                                <span class="text-xs font-semibold uppercase text-purple-700">Alışlardan İndirilecek KDV (191)</span>
+                                <div id="kdv-indirilecek" class="text-2xl font-black text-purple-900 mt-2">0,00 ₺</div>
+                                <p class="text-xs text-purple-600 mt-1" id="kdv-alis-matrah">Matrah: 0,00 ₺</p>
+                            </div>
+                            <div id="kdv-sonuc-kutu" class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                                <span id="kdv-sonuc-baslik" class="text-xs font-semibold uppercase text-emerald-700">Net Durum</span>
+                                <div id="kdv-fark" class="text-2xl font-black text-emerald-900 mt-2">0,00 ₺</div>
+                                <p id="kdv-sonuc-aciklama" class="text-xs text-emerald-600 mt-1">Hesaplanıyor...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bilgilendirme Kutusu -->
+                    <div class="bg-slate-100 rounded-xl p-5 border border-slate-200 text-xs text-slate-600 space-y-2">
+                        <p class="font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4 text-blue-600"></i> Ön Muhasebe Raporlama Mantığı:</p>
+                        <p>• Tüm hesaplamalar çift taraflı muhasebe entegrasyonuyla canlı olarak güncellenir. Fatura kesildiğinde ilgili cari otomatik borçlanır veya alacaklanır.</p>
+                        <p>• Nakit kasa, banka havalesi veya çek tahsilatı yapıldığında cari bakiye otomatik kapanır ve kasa/banka varlıklarına anında işlenir.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. FİRMA & AYARLAR TAB -->
+            <section id="tab-ayarlar" class="tab-content space-y-6">
+                <!-- Firma Bilgileri Formu -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-4xl">
+                    <h3 class="font-bold text-base text-slate-800 flex items-center gap-2 mb-4">
+                        <i data-lucide="building" class="w-5 h-5 text-blue-600"></i>
+                        Şirket & Fatura Antet Bilgileri
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-6">Burada gireceğiniz bilgiler düzenlediğiniz satış faturalarında ve resmi cari ekstre çıktılarında başlık olarak yazdırılacaktır.</p>
+
+                    <form id="form-ayarlar" onsubmit="saveAyarlar(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Firma / Şirket Tam Resmi Unvanı</label>
+                                <input type="text" id="ayarlar-firma-adi" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Yetkili Kişi</label>
+                                <input type="text" id="ayarlar-yetkili" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Telefon</label>
+                                <input type="text" id="ayarlar-telefon" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Vergi Dairesi</label>
+                                <input type="text" id="ayarlar-vergi-dairesi" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Vergi No / TC Kimlik No</label>
+                                <input type="text" id="ayarlar-vergi-no" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">E-Posta</label>
+                                <input type="email" id="ayarlar-eposta" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Web Sitesi</label>
+                                <input type="text" id="ayarlar-web" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">İş Yeri / Fabrika Adresi</label>
+                                <textarea id="ayarlar-adres" rows="2" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Faturalarda Çıkacak Varsayılan Banka</label>
+                                <input type="text" id="ayarlar-varsayilan-banka" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Varsayılan IBAN No</label>
+                                <input type="text" id="ayarlar-varsayilan-iban" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Fatura Alt Notu</label>
+                                <input type="text" id="ayarlar-fatura-notu" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="pt-3">
+                            <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                                Ayarları Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Veritabanı Yedekleme ve Kurtarma -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-4xl">
+                    <h3 class="font-bold text-base text-slate-800 flex items-center gap-2 mb-2">
+                        <i data-lucide="database" class="w-5 h-5 text-emerald-600"></i>
+                        Veritabanı Yedekleme ve Taşıma
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4">Verileriniz bilgisayarınızda yerel SQLite dosyasında saklanır. İstediğiniz an tek tıkla yedeğini alıp başka bir bilgisayara taşıyabilirsiniz.</p>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="/api/ayarlar/yedekle" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Veritabanı Yedeğini İndir (.db)</span>
+                        </a>
+                        <button type="button" onclick="document.getElementById('input-yedek-yukle').click()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="upload" class="w-4 h-4"></i>
+                            <span>Yedek Dosyası Geri Yükle (.db)</span>
+                        </button>
+                        <input type="file" id="input-yedek-yukle" accept=".db" class="hidden" onchange="uploadYedekDosyasi(event)">
+                        <button type="button" onclick="loadSampleData()" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition border border-slate-300">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>Örnek Demo Verileri Yeniden Yükle</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Veritabanı Sıfırlama ve Temiz Sayfa -->
+                <div class="bg-white rounded-xl border border-rose-200 shadow-sm p-6 max-w-4xl mt-6">
+                    <h3 class="font-bold text-base text-rose-800 flex items-center gap-2 mb-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600"></i>
+                        Örnek ve Hareket Verilerini Temizleme (Sıfır Başlangıç)
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4">Programdaki tüm örnek faturaları, carileri, çekleri ve kasa/banka hareketlerini temizleyip kendi şirket kayıtlarınızla sıfırdan temiz bir başlangıç yapabilirsiniz. (İşlem öncesi otomatik güvenlik yedeği alınır).</p>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="resetAllData(true)" class="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <span>Tüm Örnek ve Hareket Verilerini Sıfırla (Temiz Sayfa Aç)</span>
+                        </button>
+                        <button type="button" onclick="resetAllData(false)" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <span>Yalnızca Hareketleri Sıfırla (Cariler Kalsın, Bakiyeler Sıfırlansın)</span>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- ==================== MODALLAR ==================== -->
+
+    <!-- 1. YENİ / DÜZENLE CARİ MODAL -->
+    <div id="modal-cari-ekle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="modal-cari-baslik" class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-blue-600"></i>
+                    <span>Yeni Cari Kart Tanımla</span>
+                </h3>
+                <button onclick="closeModal('modal-cari-ekle')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Cari Alt Sekmeleri (Sub-tabs) -->
+            <div class="flex border-b border-slate-200 bg-slate-50/70 px-6">
+                <button type="button" onclick="switchCariTab('genel')" id="cari-tab-btn-genel" class="px-4 py-2.5 text-xs font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5 transition">
+                    <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                    <span>Genel Bilgiler</span>
+                </button>
+                <button type="button" onclick="switchCariTab('personel')" id="cari-tab-btn-personel" class="px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition">
+                    <i data-lucide="user-check" class="w-3.5 h-3.5 text-indigo-600"></i>
+                    <span>Personel Bilgileri</span>
+                    <span id="badge-cari-personel-durum" class="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-purple-100 text-purple-700 font-bold hidden">Personel</span>
+                </button>
+            </div>
+
+            <form onsubmit="submitCariForm(event)" class="p-6 space-y-4">
+                <input type="hidden" id="cari-edit-id" value="">
+
+                <!-- 1. ALT SEKME: GENEL BİLGİLER -->
+                <div id="cari-tabcontent-genel" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Cari Unvanı / Şirket Adı *</label>
+                            <input type="text" id="cari-form-unvan" required placeholder="Örn: Akdeniz Mermer A.Ş." class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Cari Türü *</label>
+                            <select id="cari-form-tip" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="MUSTERI">Müşteri (Alıcı)</option>
+                                <option value="TEDARIKCI">Tedarikçi (Satıcı)</option>
+                                <option value="HEPSI">Hem Müşteri Hem Tedarikçi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Yetkili Kişi</label>
+                            <input type="text" id="cari-form-yetkili" placeholder="Ahmet Yılmaz" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Telefon</label>
+                            <input type="text" id="cari-form-telefon" placeholder="0532 ..." class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">E-Posta</label>
+                            <input type="email" id="cari-form-eposta" placeholder="muhasebe@firma.com" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Vergi Dairesi</label>
+                            <input type="text" id="cari-form-vd" placeholder="Afyon V.D." class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Vergi No / TCKN</label>
+                            <input type="text" id="cari-form-vno" placeholder="10 haneli VNO veya 11 haneli TCKN" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">İl</label>
+                            <input type="text" id="cari-form-il" placeholder="Afyonkarahisar" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">İlçe</label>
+                            <input type="text" id="cari-form-ilce" placeholder="Merkez" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Açık Adres</label>
+                            <textarea id="cari-form-adres" rows="2" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+
+                        <!-- Açılış Devir Bakiyesi (Sadece Yeni Kayıtta) -->
+                        <div id="cari-devir-container" class="col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-200 mt-1">
+                            <span class="block text-xs font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+                                <i data-lucide="history" class="w-3.5 h-3.5 text-blue-600"></i> Açılış / Devir Bakiyesi (İsteğe Bağlı)
+                            </span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Açılış Bakiyesi (₺)</label>
+                                    <input type="number" step="0.01" id="cari-form-devir-tutar" value="0.00" placeholder="0.00" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Bakiye Türü</label>
+                                    <select id="cari-form-devir-tur" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-semibold">
+                                        <option value="BORC">Borç (Cari Bize Borçlu / Biz Alacaklıyız)</option>
+                                        <option value="ALACAK">Alacak (Tedarikçi Alacaklı / Biz Borçluyuz)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personel Kısa Bilgi İpucu -->
+                        <div class="col-span-2 pt-1 flex items-center justify-between text-[11px] text-slate-500 bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100">
+                            <span class="flex items-center gap-1.5 font-medium text-slate-700">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-600"></i>
+                                Bu cari bir şirket personeli / çalışanı ise işaretleyebilirsiniz.
+                            </span>
+                            <button type="button" onclick="switchCariTab('personel')" class="text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer">
+                                Personel Sekmesine Geç &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ALT SEKME: PERSONEL BİLGİLERİ -->
+                <div id="cari-tabcontent-personel" class="space-y-4 hidden">
+                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-200">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="cari-form-is-personel" onchange="onPersonelCheckChange()" class="w-5 h-5 mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 cursor-pointer">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-900">Bu cari kart bir şirket personeline / çalışanına aittir</span>
+                                <span class="block text-[11px] text-slate-600 mt-1">İşaretlendiğinde bu hesap personel avansları, maaş ödemeleri ve hakediş takibi için kullanılır ve cari listesinde "Personel" olarak filtreleyebilirsiniz.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Görevi / Pozisyonu</label>
+                            <input type="text" id="cari-form-personel-gorevi" placeholder="Örn: Ocak Şefi, Mermer Ustası, Muhasebe" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Departman / Çalıştığı Bölüm</label>
+                            <input type="text" id="cari-form-personel-departman" placeholder="Örn: Mermer Ocağı, Fabrika Kesim, Yönetim" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-500 space-y-1">
+                        <p class="font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i> Personel Hesapları Nasıl Çalışır?</p>
+                        <p>• Personele verilen avans veya maaş ödemeleri Kasa/Banka ekranından normal tahsilat/ödeme gibi işlenebilir.</p>
+                        <p>• Personelin şirkete borcu veya alacağı cari ekstre üzerinden güncel olarak anında görülebilir.</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-cari-ekle')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" id="cari-submit-btn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">Cariyi Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CARİ DEKONT & DEVİR GİRİŞİ MODAL -->
+    <div id="modal-cari-hareket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="cari-hareket-modal-baslik" class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="receipt" class="w-4 h-4 text-indigo-600"></i>
+                    <span>Cari Dekont & Devir Hareketi Girişi</span>
+                </h3>
+                <button onclick="closeModal('modal-cari-hareket')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitCariHareketForm(event)" class="p-6 space-y-3">
+                <input type="hidden" id="cari-hareket-edit-id" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">İşlem Türü *</label>
+                    <select id="cari-hareket-tip" onchange="adjustCariHareketForm()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-bold">
+                        <option value="BORC_DEKONTU">Borç Dekontu (Cariyi Borçlandır / Biz Alacaklanırız)</option>
+                        <option value="ALACAK_DEKONTU">Alacak Dekontu (Cariyi Alacaklandır / Cari Alacaklanır)</option>
+                        <option value="DEVIR">Açılış / Devir Bakiyesi Fişi</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">İlgili Cari (Müşteri veya Tedarikçi) *</label>
+                    <select id="cari-hareket-cari-select" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></select>
+                </div>
+
+                <!-- Devir Yönü (Sadece Devir seçildiğinde görünür) -->
+                <div id="cari-hareket-devir-yon-div" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Devir Bakiyesi Yönü *</label>
+                    <select id="cari-hareket-devir-yon" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                        <option value="BORC">Borç Devri (Cari Bize Borçlu / Biz Alacaklıyız)</option>
+                        <option value="ALACAK">Alacak Devri (Tedarikçi Alacaklı / Biz Borçluyuz)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tutar (₺) *</label>
+                        <input type="number" step="0.01" id="cari-hareket-tutar" required placeholder="0.00" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-bold text-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tarih *</label>
+                        <input type="date" id="cari-hareket-tarih" required class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Evrak / Dekont No</label>
+                    <input type="text" id="cari-hareket-evrak-no" placeholder="Örn: DKT-2026-001 veya MHS-01" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Açıklama *</label>
+                    <input type="text" id="cari-hareket-aciklama" required placeholder="Örn: 2025 yılından devir, fiyat farkı yansıtması, iskonto dekontu..." class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-cari-hareket')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" id="cari-hareket-submit-btn" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition">Hareketi / Dekontu Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. CARİ EKSTRE MODAL (HESAP ÖZETİ & YAZDIRMA) -->
+    <div id="modal-cari-ekstre" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 flex-shrink-0">
+                <div>
+                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-blue-600"></i>
+                        Cari Hesap Ekstresi
+                    </h3>
+                    <p class="text-xs text-slate-500 font-medium" id="ekstre-cari-unvan"></p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="ekstre-btn-duzelt" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Cariyi Düzelt
+                    </button>
+                    <button id="ekstre-btn-yeni-hareket" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Dekont / Devir Ekle
+                    </button>
+                    <button onclick="printEkstre()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Yazdır / PDF
+                    </button>
+                    <button onclick="closeModal('modal-cari-ekstre')" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <!-- Ekstre Tablo ve Veriler -->
+            <div class="p-6 overflow-y-auto flex-1 space-y-4" id="ekstre-printable-area">
+                <!-- Antet Bilgisi -->
+                <div class="border-b border-slate-200 pb-4 flex justify-between items-start">
+                    <div>
+                        <h2 class="text-base font-black text-slate-900" id="ekstre-print-firma">ÖZERLER MERMER</h2>
+                        <p class="text-xs text-slate-500" id="ekstre-print-adres"></p>
+                        <p class="text-xs text-slate-500" id="ekstre-print-vergi"></p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-2.5 py-1 bg-blue-100 text-blue-800 font-bold text-xs rounded mb-1">MÜŞTERİ / CARİ EKSTRESİ</span>
+                        <p class="text-xs text-slate-500">Tarih: <span id="ekstre-rapor-tarihi"></span></p>
+                    </div>
+                </div>
+
+                <!-- Bakiye Özet Kutuları -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Toplam Borç Hareketi</span>
+                        <div id="ekstre-toplam-borc" class="text-base font-black text-slate-800 mt-1">0,00 ₺</div>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Toplam Alacak Hareketi</span>
+                        <div id="ekstre-toplam-alacak" class="text-base font-black text-slate-800 mt-1">0,00 ₺</div>
+                    </div>
+                    <div id="ekstre-bakiye-box" class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-center">
+                        <span class="text-[11px] font-bold text-blue-700 uppercase">Güncel Net Bakiye</span>
+                        <div id="ekstre-net-bakiye" class="text-base font-black text-blue-900 mt-1">0,00 ₺</div>
+                    </div>
+                </div>
+
+                <!-- Bilgilendirme Banner -->
+                <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-xs flex items-center gap-2 no-print">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
+                    <span><strong>İpucu:</strong> Bir hesap hareketinin üzerine tıklayarak ya da <strong>Düzenle</strong> butonuna basarak ilgili faturayı, dekontu veya tahsilat makbuzunu anında açıp değiştirebilirsiniz.</span>
+                </div>
+
+                <!-- Ekstre Tablosu -->
+                <table class="w-full text-left border-collapse data-table text-xs">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-3">Tarih</th>
+                            <th class="py-2 px-3">İşlem Türü</th>
+                            <th class="py-2 px-3">Evrak No</th>
+                            <th class="py-2 px-3">Açıklama</th>
+                            <th class="py-2 px-3 text-right">Borç (₺)</th>
+                            <th class="py-2 px-3 text-right">Alacak (₺)</th>
+                            <th class="py-2 px-3 text-right">Bakiye (₺)</th>
+                            <th class="py-2 px-3 text-center no-print">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ekstre-hareketler-tbody">
+                        <!-- JS dolduracak -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. YENİ FATURA MODAL (DİNAMİK KALEMLER & CANLI HESAPLAMA) -->
+    <div id="modal-fatura" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 flex-shrink-0">
+                <h3 id="fatura-modal-baslik" class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="file-plus" class="w-4 h-4 text-blue-600"></i>
+                    Yeni Satış Faturası Düzenle
+                </h3>
+                <button onclick="closeModal('modal-fatura')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Form -->
+            <form id="form-fatura" onsubmit="submitFaturaForm(event)" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <input type="hidden" id="fatura-edit-id" value="">
+                <input type="hidden" id="fatura-turu-input" value="SATIS">
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Cari Kartı Seçiniz *</label>
+                        <select id="fatura-cari-select" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <!-- JS ile doldurulacak -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Fatura No</label>
+                        <input type="text" id="fatura-no-input" placeholder="Otomatik Üretilir" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Fatura Tarihi *</label>
+                        <input type="date" id="fatura-tarih-input" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Fatura Kalemleri Tablosu -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Fatura Kalemleri (Ürün / Hizmet Satırları)</h4>
+                        <button type="button" onclick="addFaturaSatiri()" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Satır Ekle
+                        </button>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="py-2 px-2 w-32">Stok Kartı</th>
+                                    <th class="py-2 px-2">Açıklama / Mal-Hizmet Tanımı</th>
+                                    <th class="py-2 px-2 w-16 text-center">Miktar</th>
+                                    <th class="py-2 px-2 w-16 text-center">Birim</th>
+                                    <th class="py-2 px-2 w-24 text-right">Birim Fiyat (₺)</th>
+                                    <th class="py-2 px-2 w-20 text-center">KDV %</th>
+                                    <th class="py-2 px-2 w-24 text-right">KDV Tutarı (₺)</th>
+                                    <th class="py-2 px-2 w-24 text-right">Tutar (₺)</th>
+                                    <th class="py-2 px-1 w-8 text-center">Sil</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fatura-satirlari-tbody">
+                                <!-- JS ile dinamik satırlar -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Datalist KDV Seçenekleri -->
+                <datalist id="kdv-orani-list">
+                    <option value="20">%20 (Genel Oran)</option>
+                    <option value="10">%10</option>
+                    <option value="8">%8</option>
+                    <option value="1">%1</option>
+                    <option value="0">%0 (Muaf)</option>
+                </datalist>
+
+                <!-- Alt Toplamlar ve Açıklama -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Fatura Açıklaması / Not</label>
+                        <textarea id="fatura-aciklama-input" rows="3" placeholder="Ödeme şartı, teslimat detayları veya banka hesap bilgisi..." class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-slate-600">
+                            <span>Ara Toplam (Matrah):</span>
+                            <span id="fatura-ozet-ara-toplam" class="font-bold text-slate-800">0,00 ₺</span>
+                        </div>
+                        <div class="flex items-center justify-between text-slate-600">
+                            <span class="flex items-center gap-1 font-medium">KDV Toplamı: <span class="text-[10px] text-slate-400 font-normal">(Elle girilebilir)</span></span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-slate-400 font-bold">₺</span>
+                                <input type="number" step="0.01" min="0" id="fatura-ozet-kdv-input" oninput="onKdvOzetInput(this.value)" class="w-28 text-right text-xs p-1.5 border border-slate-300 rounded-lg font-bold text-purple-700 bg-white shadow-sm focus:ring-2 focus:ring-purple-400" value="0.00" title="KDV toplamını doğrudan buradan da elle girebilirsiniz">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-slate-300 pt-2 text-sm font-black text-slate-900">
+                            <span>GENEL TOPLAM:</span>
+                            <span id="fatura-ozet-genel-toplam" class="text-blue-600">0,00 ₺</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Butonlar -->
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2 flex-shrink-0">
+                    <button type="button" onclick="closeModal('modal-fatura')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" id="fatura-submit-btn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">Faturayı Kes ve Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. FATURA GÖRÜNTÜLEME & RESMİ A4 ÇIKTI MODAL -->
+    <div id="modal-fatura-goruntule" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-6 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50 flex-shrink-0">
+                <span class="font-bold text-xs text-slate-600">Fatura Önizleme</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="printFatura()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Yazdır / PDF Kaydet
+                    </button>
+                    <button onclick="closeModal('modal-fatura-goruntule')" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <!-- A4 Resmi Fatura Alanı -->
+            <div class="p-8 overflow-y-auto flex-1 bg-white" id="fatura-printable-area">
+                <!-- Şirket & Fatura Başlığı -->
+                <div class="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 tracking-tight" id="inv-firma-unvan">ÖZERLER MERMER SAN. VE TİC. LTD. ŞTİ.</h2>
+                        <p class="text-xs text-slate-600 mt-1" id="inv-firma-adres">Organize Sanayi Bölgesi 2. Cadde No: 14 Afyonkarahisar</p>
+                        <p class="text-xs text-slate-600" id="inv-firma-vergi">Afyonkarahisar V.D. / 6540123456</p>
+                        <p class="text-xs text-slate-600" id="inv-firma-iletisim">Tel: 0 (272) 214 00 00 | E-posta: muhasebe@ozerlermermer.com.tr</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="inline-block px-3 py-1 bg-slate-900 text-white text-xs font-black tracking-widest uppercase rounded mb-2" id="inv-tur-etiket">SATIŞ FATURASI</div>
+                        <div class="text-xs text-slate-500">Fatura No: <strong id="inv-fatura-no" class="text-slate-900 text-sm font-mono font-bold"></strong></div>
+                        <div class="text-xs text-slate-500 mt-0.5">Düzenleme Tarihi: <strong id="inv-fatura-tarih" class="text-slate-800"></strong></div>
+                        <div class="text-xs text-slate-500 mt-0.5">Vade Tarihi: <strong id="inv-vade-tarih" class="text-slate-800"></strong></div>
+                    </div>
+                </div>
+
+                <!-- Alıcı / Satıcı Cari Bilgileri -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                    <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">SAYIN / MÜŞTERİ BİLGİLERİ</span>
+                    <h3 class="text-sm font-bold text-slate-900 mt-1" id="inv-cari-unvan"></h3>
+                    <p class="text-xs text-slate-600" id="inv-cari-adres"></p>
+                    <p class="text-xs text-slate-600" id="inv-cari-vergi"></p>
+                    <p class="text-xs text-slate-600" id="inv-cari-tel"></p>
+                </div>
+
+                <!-- Fatura Kalemleri Tablosu -->
+                <table class="w-full text-left border-collapse mb-6 text-xs">
+                    <thead>
+                        <tr class="border-b-2 border-slate-300 bg-slate-100">
+                            <th class="py-2.5 px-3">Sıra</th>
+                            <th class="py-2.5 px-3">Mal / Hizmet Açıklaması</th>
+                            <th class="py-2.5 px-3 text-right">Miktar</th>
+                            <th class="py-2.5 px-3">Birim</th>
+                            <th class="py-2.5 px-3 text-right">Birim Fiyat</th>
+                            <th class="py-2.5 px-3 text-right">KDV %</th>
+                            <th class="py-2.5 px-3 text-right">KDV Tutarı</th>
+                            <th class="py-2.5 px-3 text-right">Toplam Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-kalemler-tbody" class="divide-y divide-slate-200">
+                        <!-- JS dolduracak -->
+                    </tbody>
+                </table>
+
+                <!-- Fatura Alt Toplamları & Yazı ile Tutar -->
+                <div class="grid grid-cols-2 gap-6 items-start border-t-2 border-slate-900 pt-4">
+                    <div>
+                        <div class="text-xs font-semibold text-slate-700">Yazı ile:</div>
+                        <div id="inv-yaziyla-tutar" class="text-xs font-bold text-slate-900 italic mt-0.5 bg-slate-50 p-2 rounded border border-slate-200"></div>
+
+                        <div class="mt-4 text-xs text-slate-500">
+                            <strong>Banka Bilgisi:</strong> <span id="inv-banka-bilgi">Garanti BBVA - TR12 0006 2000 0001 2345 6789 01</span><br>
+                            <strong>Fatura Notu:</strong> <span id="inv-fatura-notu"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-xs text-right">
+                        <div class="flex justify-between py-1">
+                            <span class="text-slate-600 font-medium">Ara Toplam (Matrah):</span>
+                            <span id="inv-ara-toplam" class="font-bold text-slate-800"></span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-slate-600 font-medium">Hesaplanan KDV:</span>
+                            <span id="inv-kdv-toplam" class="font-bold text-slate-800"></span>
+                        </div>
+                        <div class="flex justify-between py-2 border-t-2 border-slate-900 text-sm font-black text-slate-900">
+                            <span>GENEL TOPLAM:</span>
+                            <span id="inv-genel-toplam" class="text-base text-blue-700"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kaşe & İmza Alanı -->
+                <div class="grid grid-cols-2 gap-8 mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-600">
+                    <div>
+                        <p class="font-bold text-slate-800">Teslim Eden / Firma Kaşe & İmza</p>
+                        <div class="h-20"></div>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800">Teslim Alan / Alıcı İmza</p>
+                        <div class="h-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. KASA & BANKA İŞLEMİ (TAHSİLAT / ÖDEME / VİRMAN) MODAL -->
+    <div id="modal-islem" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="islem-modal-baslik" class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="arrow-down-left" class="w-4 h-4 text-emerald-600"></i>
+                    Tahsilat & Ödeme Girişi
+                </h3>
+                <button onclick="closeModal('modal-islem')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitIslemForm(event)" class="p-6 space-y-3">
+                <input type="hidden" id="islem-edit-id" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">İşlem Türü *</label>
+                    <select id="islem-form-turu" onchange="adjustIslemForm()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold">
+                        <option value="KASA_TAHSILAT">Nakit Tahsilat (Kasaya Giriş)</option>
+                        <option value="KREDI_KARTI_TAHSILAT">Kredi Kartı ile Tahsilat (POS / Bankaya Giriş)</option>
+                        <option value="BANKA_GELEN_HAVALE">Gelen Havale / EFT (Bankaya Giriş)</option>
+                        <option value="KASA_ODEME">Nakit Ödeme (Kasadan Çıkış)</option>
+                        <option value="BANKA_GIDEN_HAVALE">Giden Havale / EFT (Bankadan Çıkış)</option>
+                        <option value="KASA_BANKA_VIRMAN">Virman: Kasadan Bankaya Yatırma</option>
+                        <option value="BANKA_KASA_VIRMAN">Virman: Bankadan Kasaya Nakit Çekme</option>
+                        <option value="MASRAF_ODEME">Genel Gider / Masraf Ödemesi</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div id="islem-field-kasa">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kasa Seçiniz</label>
+                        <select id="islem-form-kasa" class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                    </div>
+                    <div id="islem-field-banka">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Banka Hesabı Seçiniz</label>
+                        <select id="islem-form-banka" class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                    </div>
+                </div>
+
+                <div id="islem-field-cari">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">İlgili Cari (Müşteri / Tedarikçi)</label>
+                    <select id="islem-form-cari" class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tutar (₺) *</label>
+                        <input type="number" step="0.01" id="islem-form-tutar" required placeholder="0.00" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-bold text-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tarih *</label>
+                        <input type="date" id="islem-form-tarih" required class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Evrak / Makbuz / Dekont No</label>
+                        <input type="text" id="islem-form-evrak" placeholder="Örn: DEK-4412" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Açıklama</label>
+                        <input type="text" id="islem-form-aciklama" placeholder="İşlem detayı..." class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-islem')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" id="islem-submit-btn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition">İşlemi Tamamla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. ÇEK GİRİŞİ MODAL -->
+    <div id="modal-cek" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="cek-modal-baslik" class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4 text-amber-600"></i>
+                    Yeni Çek Girişi
+                </h3>
+                <button onclick="closeModal('modal-cek')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitCekForm(event)" class="p-6 space-y-3">
+                <input type="hidden" id="cek-form-turu" value="ALINAN">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Çek No *</label>
+                        <input type="text" id="cek-form-no" required placeholder="CK-00123" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vade Tarihi *</label>
+                        <input type="date" id="cek-form-vade" required class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">İlgili Cari (Müşteri / Tedarikçi) *</label>
+                    <select id="cek-form-cari" required class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Çek Tutarı (₺) *</label>
+                        <input type="number" step="0.01" id="cek-form-tutar" required placeholder="0.00" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Keşideci (Düzenleyen)</label>
+                        <input type="text" id="cek-form-kesideci" placeholder="Çeki imzalayan kişi/şirket" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Çekin Bankası *</label>
+                        <input type="text" id="cek-form-banka" required placeholder="Örn: Garanti BBVA" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Şube Adı</label>
+                        <input type="text" id="cek-form-sube" placeholder="Afyon Şb." class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Açıklama</label>
+                    <input type="text" id="cek-form-aciklama" placeholder="Notlar..." class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-cek')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-sm transition">Çeki Portföye Al</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 7. ÇEK DURUM GÜNCELLEME MODAL (TAHSİL ET, CİRO ET, VB.) -->
+    <div id="modal-cek-durum" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    Çek İşlemi / Durum Değişikliği
+                </h3>
+                <button onclick="closeModal('modal-cek-durum')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitCekDurumForm(event)" class="p-6 space-y-3">
+                <input type="hidden" id="cek-durum-id">
+
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Çek No:</span>
+                        <strong id="cek-durum-no" class="font-mono"></strong>
+                    </div>
+                    <div class="flex justify-between mt-1">
+                        <span class="text-slate-500">Tutar:</span>
+                        <strong id="cek-durum-tutar" class="text-emerald-700"></strong>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Yapılacak İşlem / Yeni Durum *</label>
+                    <select id="cek-durum-yeni" onchange="adjustCekDurumForm()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold">
+                        <option value="TAHSIL_EDILDI">Tahsil Edildi (Hesaba / Kasaya Geçti)</option>
+                        <option value="BANKAYA_VERILDI">Bankaya Verildi (Tahsile Verildi)</option>
+                        <option value="CIROLANMIS">Cirolandı (Tedarikçiye Devredildi)</option>
+                        <option value="KARSILIKSIZ">Karşılıksız Çıktı (Müşteriye Geri Yansıt)</option>
+                        <option value="IADE_EDILDI">İade Edildi</option>
+                    </select>
+                </div>
+
+                <!-- Tahsilat Yapılacak Hesap -->
+                <div id="cek-durum-tahsil-hesap" class="space-y-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tahsilatın Aktarılacağı Yer *</label>
+                        <select id="cek-durum-aktarim-turu" onchange="adjustTahsilHedef()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                            <option value="BANKA">Banka Hesabı</option>
+                            <option value="KASA">Nakit Kasa</option>
+                        </select>
+                    </div>
+                    <div id="cek-durum-banka-div">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Banka Hesabı</label>
+                        <select id="cek-durum-banka" class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                    </div>
+                    <div id="cek-durum-kasa-div" class="hidden">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kasa</label>
+                        <select id="cek-durum-kasa" class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                    </div>
+                </div>
+
+                <!-- Cirolanacak Cari -->
+                <div id="cek-durum-ciro-cari" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Çekin Cirolanacağı Tedarikçi / Cari *</label>
+                    <select id="cek-durum-ciro-select" class="w-full text-xs p-2 border border-slate-300 rounded-lg"></select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">İşlem Tarihi *</label>
+                    <input type="date" id="cek-durum-tarih" required class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-cek-durum')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">Durumu Onayla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 8. YENİ STOK KARTI MODAL -->
+    <div id="modal-stok-ekle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <i data-lucide="package-plus" class="w-4 h-4 text-blue-600"></i>
+                    Yeni Stok / Hizmet Kartı
+                </h3>
+                <button onclick="closeModal('modal-stok-ekle')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitStokForm(event)" class="p-6 space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Ürün / Hizmet Adı *</label>
+                    <input type="text" id="stok-form-ad" required placeholder="Örn: 2cm Beyaz Cilalı Mermer Plaka" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kart Türü *</label>
+                        <select id="stok-form-tip" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                            <option value="URUN">Ürün / Ticari Mal</option>
+                            <option value="HIZMET">Hizmet / İşçilik</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Birim *</label>
+                        <select id="stok-form-birim" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                            <option value="Adet">Adet</option>
+                            <option value="m²">m² (Metrekare)</option>
+                            <option value="Metre">Metre</option>
+                            <option value="Ton">Ton</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Saat">Saat</option>
+                            <option value="Paket">Paket</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Alış Fiyatı (₺)</label>
+                        <input type="number" step="0.01" id="stok-form-alis" value="0.00" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Satış Fiyatı (₺)</label>
+                        <input type="number" step="0.01" id="stok-form-satis" value="0.00" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-bold">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">KDV Oranı (%)</label>
+                        <input type="number" step="any" min="0" max="100" id="stok-form-kdv" value="20" list="kdv-orani-list" class="w-full text-xs p-2 border border-slate-300 rounded-lg font-bold" placeholder="Örn: 20, 10, 8, 1, 0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mevcut Stok Miktarı</label>
+                        <input type="number" step="0.1" id="stok-form-miktar" value="0" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-stok-ekle')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">Kartı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 9. KASA EKLEME / DÜZENLEME MODAL -->
+    <div id="modal-kasa-ekle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="modal-kasa-baslik" class="font-bold text-sm text-slate-800">Yeni Nakit Kasa Tanımla</h3>
+                <button onclick="closeModal('modal-kasa-ekle')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitKasaForm(event)" class="p-6 space-y-3">
+                <input type="hidden" id="kasa-edit-id" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kasa Adı *</label>
+                    <input type="text" id="kasa-yeni-ad" required placeholder="Örn: Fabrika Nakit Kasası" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Para Birimi</label>
+                    <select id="kasa-yeni-pb" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                        <option value="TRY">Türk Lirası (₺)</option>
+                        <option value="USD">Amerikan Doları ($)</option>
+                        <option value="EUR">Euro (€)</option>
+                    </select>
+                </div>
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-kasa-ekle')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" id="kasa-submit-btn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 10. BANKA HESABI EKLEME / DÜZENLEME MODAL -->
+    <div id="modal-banka-ekle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="modal-banka-baslik" class="font-bold text-sm text-slate-800">Yeni Banka Hesabı Ekle</h3>
+                <button onclick="closeModal('modal-banka-ekle')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="submitBankaForm(event)" class="p-6 space-y-3">
+                <input type="hidden" id="banka-edit-id" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Banka Adı *</label>
+                    <input type="text" id="banka-yeni-ad" required placeholder="Örn: Garanti BBVA" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Şube Adı</label>
+                    <input type="text" id="banka-yeni-sube" placeholder="Afyon Şb." class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">IBAN Numarası *</label>
+                    <input type="text" id="banka-yeni-iban" required placeholder="TR12 0000 ..." class="w-full text-xs p-2 border border-slate-300 rounded-lg font-mono">
+                </div>
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-banka-ekle')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">İptal</button>
+                    <button type="submit" id="banka-submit-btn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 11. RAPOR YAZDIRMA & ÖNİZLEME MODALI -->
+    <div id="modal-rapor-yazdir" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 flex-shrink-0 no-print">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="printer" class="w-5 h-5 text-slate-700"></i>
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-800" id="print-modal-baslik">Mali Rapor Önizleme & Yazdır</h3>
+                        <p class="text-xs text-slate-500 font-medium" id="print-modal-alt">Seçili tarih aralığı resmi rapor çıktısı</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Yazdır / PDF Kaydet</span>
+                    </button>
+                    <button onclick="closeModal('modal-rapor-yazdir')" class="text-slate-400 hover:text-slate-600 p-1">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Yazdırılabilir Alan -->
+            <div class="p-8 overflow-y-auto flex-1 bg-white space-y-6" id="rapor-printable-area">
+                <!-- Şirket & Rapor Anteti -->
+                <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900 tracking-tight" id="rapor-print-firma">ÖZERLER MERMER</h2>
+                        <p class="text-xs text-slate-500" id="rapor-print-adres"></p>
+                        <p class="text-xs text-slate-500" id="rapor-print-vergi"></p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-3 py-1 bg-slate-100 text-slate-900 font-black text-xs rounded border border-slate-300" id="rapor-print-tur-etiket">RESMİ RAPOR</span>
+                        <p class="text-xs text-slate-600 mt-1 font-semibold">Tarih Aralığı: <span id="rapor-print-donem" class="font-mono text-slate-900"></span></p>
+                        <p class="text-[11px] text-slate-400">Rapor Tarihi: <span id="rapor-print-cikti-tarihi"></span></p>
+                    </div>
+                </div>
+
+                <!-- Rapor Özeti Kutuları -->
+                <div id="rapor-print-ozet-kutulari"></div>
+
+                <!-- Rapor Tablosu -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse data-table" id="rapor-print-table">
+                        <thead id="rapor-print-thead"></thead>
+                        <tbody id="rapor-print-tbody" class="divide-y divide-slate-200 text-xs"></tbody>
+                    </table>
+                </div>
+
+                <!-- İmza & Tasdik -->
+                <div class="grid grid-cols-2 gap-8 mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-600">
+                    <div>
+                        <p class="font-bold text-slate-800">Raporu Hazırlayan / Muhasebe</p>
+                        <div class="h-16"></div>
+                        <p class="text-[11px] text-slate-400">Kaşe / İmza</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800">Firma Yetkilisi / Onay</p>
+                        <div class="h-16"></div>
+                        <p class="text-[11px] text-slate-400">İmza</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Bildirimi -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-bold z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400" id="toast-icon"></i>
+        <span id="toast-message">İşlem başarıyla gerçekleştirildi.</span>
+    </div>
+
+    <!-- Uygulama JavaScript Dosyası -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

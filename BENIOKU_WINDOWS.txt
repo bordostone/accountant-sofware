@@ -1,0 +1,46 @@
+============================================================
+       ÖZERLER MERMER — ÖN MUHASEBE VE FATURA TAKİP
+              Masaüstü Uygulaması (Windows)
+============================================================
+
+Bu paket, Ön Muhasebe Pro programını bilgisayarınızda yerel ve bağımsız
+bir Masaüstü Uygulaması (Desktop App) olarak çalıştırmanızı sağlar.
+
+------------------------------------------------------------
+1. İLK KURULUM VE BAŞLATMA:
+------------------------------------------------------------
+1. İndirdiğiniz ZIP dosyasını bir klasöre çıkartınız (Örn: C:\OnMuhasebe).
+2. "Kurulum.bat" (veya "Baslat.bat") dosyasına çift tıklayınız.
+3. Program otomatik olarak:
+   - Gerekli kütüphaneleri kontrol edip yükler.
+   - Masaüstünüze "Özerler Mermer - Ön Muhasebe" simgesini ekler.
+   - Programı bağımsız bir MASAÜSTÜ PENCERESİ olarak açar.
+
+------------------------------------------------------------
+2. MASAÜSTÜNDEN ÇALIŞTIRMA (GÜNLÜK KULLANIM):
+------------------------------------------------------------
+- Kurulumdan sonra konsol veya komut satırıyla işiniz yoktur!
+- Masaüstünüzdeki "Özerler Mermer - Ön Muhasebe" simgesine çift tıklayarak
+  programı doğrudan, arka planda sessizce başlatabilirsiniz.
+- Program web tarayıcısı sekmeleri veya adres çubukları olmadan,
+  tamamen bağımsız ve çerçevesiz bir Masaüstü Programı olarak açılır.
+
+------------------------------------------------------------
+3. PROGRAMI KAPATMA:
+------------------------------------------------------------
+- Program penceresinin sağ üst köşesindeki "X" (kapat) butonuna bastığınızda
+  veya programın sol altındaki / üst çubuğundaki "Programı Kapat / Çıkış"
+  butonuna tıkladığınızda tüm işlemler güvenle durdurulur ve pencere kapanır.
+- Dilerseniz "Durdur.bat" dosyasına çift tıklayarak da sunucuyu durdurabilirsiniz.
+
+------------------------------------------------------------
+4. YEDEKLEME VE VERİ GÜVENLİĞİ:
+------------------------------------------------------------
+- "Yedekle.bat" dosyasına tıklayarak veritabanınızın tarih/saat damgalı
+  yedeğini "data\yedekler" klasörüne alabilirsiniz.
+- Ayrıca program içerisinden "Firma & Ayarlar" menüsünden dilediğiniz zaman
+  tek tıkla yedek indirebilir veya yedek geri yükleyebilirsiniz.
+
+============================================================
+Özerler Mermer San. ve Tic. Ltd. Şti.
+============================================================
